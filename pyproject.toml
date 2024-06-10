@@ -78,7 +78,7 @@ select = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/aliasing/test*.py" = ["S101"]
+"tests/aliasing/test*.py" = ["S101", "FBT001"]
 
 [tool.ruff.format]
 quote-style = "double"

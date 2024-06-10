@@ -14,15 +14,22 @@ class TestPlainAndSerializationAlias:
                 "f_name",
                 "Mickey",
                 pytest.raises(ValidationError),
-                [{'type': 'missing', 'loc': ('firstName',), 'msg': 'Field required','input': {'f_name': 'Mickey'}}],
+                [{"type": "missing", "loc": ("firstName",), "msg": "Field required", "input": {"f_name": "Mickey"}}],
             ),
             (
                 "first_name",
                 "Mickey",
                 pytest.raises(ValidationError),
-                [{'type': 'missing', 'loc': ('firstName',), 'msg': 'Field required','input': {'first_name': 'Mickey'}}],
-            )
-        ]
+                [
+                    {
+                        "type": "missing",
+                        "loc": ("firstName",),
+                        "msg": "Field required",
+                        "input": {"first_name": "Mickey"},
+                    }
+                ],
+            ),
+        ],
     )
     def test_should_instantiate_model_fields_by_plain_alias(
         self,
@@ -30,7 +37,7 @@ class TestPlainAndSerializationAlias:
         arg_name: str,
         arg_value: str,
         expectation: ContextManager,
-        expected_error: list[dict] | None
+        expected_error: list[dict] | None,
     ):
         with expectation as exc_info:
             _ = model_with_plain_and_serialization_alias(**{arg_name: arg_value})
@@ -40,7 +47,6 @@ class TestPlainAndSerializationAlias:
             assert exc_info is not None
             assert exc_info.value.errors(include_url=False) == expected_error
 
-
     @pytest.mark.parametrize(
         "data, expectation, expected_error",
         [
@@ -49,31 +55,45 @@ class TestPlainAndSerializationAlias:
             (
                 {"f_name": "Mickey"},
                 pytest.raises(ValidationError),
-                [{'type': 'missing', 'loc': ('firstName',), 'msg': 'Field required', 'input': {'f_name': 'Mickey'}}]
+                [{"type": "missing", "loc": ("firstName",), "msg": "Field required", "input": {"f_name": "Mickey"}}],
             ),
             (
                 '{"f_name": "Mickey"}',
                 pytest.raises(ValidationError),
-                [{'type': 'missing', 'loc': ('firstName',), 'msg': 'Field required', 'input': {'f_name': 'Mickey'}}]
+                [{"type": "missing", "loc": ("firstName",), "msg": "Field required", "input": {"f_name": "Mickey"}}],
             ),
             (
                 {"first_name": "Mickey"},
                 pytest.raises(ValidationError),
-                [{'type': 'missing', 'loc': ('firstName',), 'msg': 'Field required', 'input': {'first_name': 'Mickey'}}]
+                [
+                    {
+                        "type": "missing",
+                        "loc": ("firstName",),
+                        "msg": "Field required",
+                        "input": {"first_name": "Mickey"},
+                    }
+                ],
             ),
             (
                 '{"first_name": "Mickey"}',
                 pytest.raises(ValidationError),
-                [{'type': 'missing', 'loc': ('firstName',), 'msg': 'Field required', 'input': {'first_name': 'Mickey'}}]
+                [
+                    {
+                        "type": "missing",
+                        "loc": ("firstName",),
+                        "msg": "Field required",
+                        "input": {"first_name": "Mickey"},
+                    }
+                ],
             ),
-        ]
+        ],
     )
     def test_should_deserialize_by_plain_alias(
         self,
         model_with_plain_and_serialization_alias,
         data: dict | str,
         expectation: ContextManager,
-        expected_error: list[dict] | None
+        expected_error: list[dict] | None,
     ):
         with expectation as exc_info:
             if isinstance(data, dict):
@@ -86,7 +106,6 @@ class TestPlainAndSerializationAlias:
             assert exc_info is not None
             assert exc_info.value.errors(include_url=False) == expected_error
 
-
     def test_serialize_by_field_name(self, model_with_plain_and_serialization_alias):
         model = model_with_plain_and_serialization_alias(firstName="Mickey")
         assert model.model_dump() == {"first_name": "Mickey"}
@@ -95,7 +114,6 @@ class TestPlainAndSerializationAlias:
         assert model.model_dump_json() != '{"f_name":"Mickey"}'
         assert model.model_dump() != {"firstName": "Mickey"}
         assert model.model_dump_json() != '{"firstName":"Mickey"}'
-
 
     def test_serialize_by_serialization_alias(self, model_with_plain_and_serialization_alias):
         model = model_with_plain_and_serialization_alias(firstName="Mickey")
@@ -106,7 +124,6 @@ class TestPlainAndSerializationAlias:
         assert model.model_dump(by_alias=True) != {"firstName": "Mickey"}
         assert model.model_dump_json(by_alias=True) != '{"firstName":"Mickey"}'
 
-
     def test_should_repr_by_field_name(self, model_with_plain_and_serialization_alias):
         model = model_with_plain_and_serialization_alias(firstName="Mickey")
         assert repr(model).find("first_name") > -1
@@ -114,20 +131,9 @@ class TestPlainAndSerializationAlias:
         assert repr(model).find("firstName") == -1
         assert list(model.__rich_repr__()) == [("first_name", "Mickey")]
 
-
-    @pytest.mark.parametrize(
-        "arg_name, expected",
-        [
-            ("first_name", True),
-            ("f_name", False),
-            ("firstName", False)
-        ]
-    )
+    @pytest.mark.parametrize("arg_name, expected", [("first_name", True), ("f_name", False), ("firstName", False)])
     def test_should_class_attribute_have_field_name(
-        self,
-        model_with_plain_and_serialization_alias,
-        arg_name: str,
-        expected: bool
+        self, model_with_plain_and_serialization_alias, arg_name: str, expected: bool
     ):
         model = model_with_plain_and_serialization_alias(firstName="Mickey")
         assert hasattr(model, arg_name) is expected
@@ -143,15 +149,22 @@ class TestPlainAndValidationAlias:
                 "f_name",
                 "Mickey",
                 pytest.raises(ValidationError),
-                [{'type': 'missing', 'loc': ('firstName',), 'msg': 'Field required','input': {'f_name': 'Mickey'}}],
+                [{"type": "missing", "loc": ("firstName",), "msg": "Field required", "input": {"f_name": "Mickey"}}],
             ),
             (
                 "first_name",
                 "Mickey",
                 pytest.raises(ValidationError),
-                [{'type': 'missing', 'loc': ('firstName',), 'msg': 'Field required','input': {'first_name': 'Mickey'}}],
-            )
-        ]
+                [
+                    {
+                        "type": "missing",
+                        "loc": ("firstName",),
+                        "msg": "Field required",
+                        "input": {"first_name": "Mickey"},
+                    }
+                ],
+            ),
+        ],
     )
     def test_should_instantiate_model_fields_by_validation_alias(
         self,
@@ -159,7 +172,7 @@ class TestPlainAndValidationAlias:
         arg_name: str,
         arg_value: str,
         expectation: ContextManager,
-        expected_error: list[dict] | None
+        expected_error: list[dict] | None,
     ):
         with expectation as exc_info:
             _ = model_with_plain_and_validation_alias(**{arg_name: arg_value})
@@ -169,7 +182,6 @@ class TestPlainAndValidationAlias:
             assert exc_info is not None
             assert exc_info.value.errors(include_url=False) == expected_error
 
-
     @pytest.mark.parametrize(
         "data, expectation, expected_error",
         [
@@ -178,31 +190,45 @@ class TestPlainAndValidationAlias:
             (
                 {"f_name": "Mickey"},
                 pytest.raises(ValidationError),
-                [{'type': 'missing', 'loc': ('firstName',), 'msg': 'Field required', 'input': {'f_name': 'Mickey'}}]
+                [{"type": "missing", "loc": ("firstName",), "msg": "Field required", "input": {"f_name": "Mickey"}}],
             ),
             (
                 '{"f_name": "Mickey"}',
                 pytest.raises(ValidationError),
-                [{'type': 'missing', 'loc': ('firstName',), 'msg': 'Field required', 'input': {'f_name': 'Mickey'}}]
+                [{"type": "missing", "loc": ("firstName",), "msg": "Field required", "input": {"f_name": "Mickey"}}],
             ),
             (
                 {"first_name": "Mickey"},
                 pytest.raises(ValidationError),
-                [{'type': 'missing', 'loc': ('firstName',), 'msg': 'Field required', 'input': {'first_name': 'Mickey'}}]
+                [
+                    {
+                        "type": "missing",
+                        "loc": ("firstName",),
+                        "msg": "Field required",
+                        "input": {"first_name": "Mickey"},
+                    }
+                ],
             ),
             (
                 '{"first_name": "Mickey"}',
                 pytest.raises(ValidationError),
-                [{'type': 'missing', 'loc': ('firstName',), 'msg': 'Field required', 'input': {'first_name': 'Mickey'}}]
+                [
+                    {
+                        "type": "missing",
+                        "loc": ("firstName",),
+                        "msg": "Field required",
+                        "input": {"first_name": "Mickey"},
+                    }
+                ],
             ),
-        ]
+        ],
     )
     def test_should_deserialize_by_validation_alias(
         self,
         model_with_plain_and_validation_alias,
         data: dict | str,
         expectation: ContextManager,
-        expected_error: list[dict] | None
+        expected_error: list[dict] | None,
     ):
         with expectation as exc_info:
             if isinstance(data, dict):
@@ -215,7 +241,6 @@ class TestPlainAndValidationAlias:
             assert exc_info is not None
             assert exc_info.value.errors(include_url=False) == expected_error
 
-
     def test_serialize_by_field_name(self, model_with_plain_and_validation_alias):
         model = model_with_plain_and_validation_alias(firstName="Mickey")
         assert model.model_dump() == {"first_name": "Mickey"}
@@ -225,14 +250,12 @@ class TestPlainAndValidationAlias:
         assert model.model_dump() != {"firstName": "Mickey"}
         assert model.model_dump_json() != '{"firstName":"Mickey"}'
 
-
     def test_serialize_by_serialization_alias(self, model_with_plain_and_validation_alias):
         model = model_with_plain_and_validation_alias(firstName="Mickey")
         assert model.model_dump(by_alias=True) == {"f_name": "Mickey"}
         assert model.model_dump_json(by_alias=True) == '{"f_name":"Mickey"}'
         assert model.model_dump(by_alias=True) != {"firstName": "Mickey"}
         assert model.model_dump_json(by_alias=True) != '{"firstName":"Mickey"}'
-
 
     def test_should_repr_by_field_name(self, model_with_plain_and_validation_alias):
         model = model_with_plain_and_validation_alias(firstName="Mickey")
@@ -241,20 +264,9 @@ class TestPlainAndValidationAlias:
         assert repr(model).find("firstName") == -1
         assert list(model.__rich_repr__()) == [("first_name", "Mickey")]
 
-
-    @pytest.mark.parametrize(
-        "arg_name, expected",
-        [
-            ("first_name", True),
-            ("f_name", False),
-            ("firstName", False)
-        ]
-    )
+    @pytest.mark.parametrize("arg_name, expected", [("first_name", True), ("f_name", False), ("firstName", False)])
     def test_should_class_attribute_have_field_name(
-        self,
-        model_with_plain_and_validation_alias,
-        arg_name: str,
-        expected: bool
+        self, model_with_plain_and_validation_alias, arg_name: str, expected: bool
     ):
         model = model_with_plain_and_validation_alias(firstName="Mickey")
         assert hasattr(model, arg_name) is expected
@@ -270,15 +282,15 @@ class TestPlainAndSerializationAndValidationAlias:
                 "f_name_a",
                 "Mickey",
                 pytest.raises(ValidationError),
-                [{'type': 'missing', 'loc': ('firstName',), 'msg': 'Field required','input': {'f_name_a': 'Mickey'}}],
+                [{"type": "missing", "loc": ("firstName",), "msg": "Field required", "input": {"f_name_a": "Mickey"}}],
             ),
             (
                 "f_name_s",
                 "Mickey",
                 pytest.raises(ValidationError),
-                [{'type': 'missing', 'loc': ('firstName',), 'msg': 'Field required','input': {'f_name_s': 'Mickey'}}],
-            )
-        ]
+                [{"type": "missing", "loc": ("firstName",), "msg": "Field required", "input": {"f_name_s": "Mickey"}}],
+            ),
+        ],
     )
     def test_should_instantiate_model_fields_by_validation_alias(
         self,
@@ -286,7 +298,7 @@ class TestPlainAndSerializationAndValidationAlias:
         arg_name: str,
         arg_value: str,
         expectation: ContextManager,
-        expected_error: list[dict] | None
+        expected_error: list[dict] | None,
     ):
         with expectation as exc_info:
             _ = model_with_plain_and_serialization_and_validation_alias(**{arg_name: arg_value})
@@ -296,7 +308,6 @@ class TestPlainAndSerializationAndValidationAlias:
             assert exc_info is not None
             assert exc_info.value.errors(include_url=False) == expected_error
 
-
     @pytest.mark.parametrize(
         "data, expectation, expected_error",
         [
@@ -305,31 +316,31 @@ class TestPlainAndSerializationAndValidationAlias:
             (
                 {"f_name_a": "Mickey"},
                 pytest.raises(ValidationError),
-                [{'type': 'missing', 'loc': ('firstName',), 'msg': 'Field required', 'input': {'f_name_a': 'Mickey'}}]
+                [{"type": "missing", "loc": ("firstName",), "msg": "Field required", "input": {"f_name_a": "Mickey"}}],
             ),
             (
                 '{"f_name_a": "Mickey"}',
                 pytest.raises(ValidationError),
-                [{'type': 'missing', 'loc': ('firstName',), 'msg': 'Field required', 'input': {'f_name_a': 'Mickey'}}]
+                [{"type": "missing", "loc": ("firstName",), "msg": "Field required", "input": {"f_name_a": "Mickey"}}],
             ),
             (
                 {"f_name_s": "Mickey"},
                 pytest.raises(ValidationError),
-                [{'type': 'missing', 'loc': ('firstName',), 'msg': 'Field required', 'input': {'f_name_s': 'Mickey'}}]
+                [{"type": "missing", "loc": ("firstName",), "msg": "Field required", "input": {"f_name_s": "Mickey"}}],
             ),
             (
                 '{"f_name_s": "Mickey"}',
                 pytest.raises(ValidationError),
-                [{'type': 'missing', 'loc': ('firstName',), 'msg': 'Field required', 'input': {'f_name_s': 'Mickey'}}]
+                [{"type": "missing", "loc": ("firstName",), "msg": "Field required", "input": {"f_name_s": "Mickey"}}],
             ),
-        ]
+        ],
     )
     def test_should_deserialize_by_validation_alias(
         self,
         model_with_plain_and_serialization_and_validation_alias,
         data: dict | str,
         expectation: ContextManager,
-        expected_error: list[dict] | None
+        expected_error: list[dict] | None,
     ):
         with expectation as exc_info:
             if isinstance(data, dict):
@@ -342,7 +353,6 @@ class TestPlainAndSerializationAndValidationAlias:
             assert exc_info is not None
             assert exc_info.value.errors(include_url=False) == expected_error
 
-
     def test_serialize_by_field_name(self, model_with_plain_and_serialization_and_validation_alias):
         model = model_with_plain_and_serialization_and_validation_alias(firstName="Mickey")
         assert model.model_dump() == {"first_name": "Mickey"}
@@ -354,7 +364,6 @@ class TestPlainAndSerializationAndValidationAlias:
         assert model.model_dump() != {"firstName": "Mickey"}
         assert model.model_dump_json() != '{"firstName":"Mickey"}'
 
-
     def test_serialize_by_serialization_alias(self, model_with_plain_and_serialization_and_validation_alias):
         model = model_with_plain_and_serialization_and_validation_alias(firstName="Mickey")
         assert model.model_dump(by_alias=True) == {"f_name_s": "Mickey"}
@@ -364,7 +373,6 @@ class TestPlainAndSerializationAndValidationAlias:
         assert model.model_dump(by_alias=True) != {"f_name_a": "Mickey"}
         assert model.model_dump_json(by_alias=True) != '{"f_name_a":"Mickey"}'
 
-
     def test_should_repr_by_field_name(self, model_with_plain_and_serialization_and_validation_alias):
         model = model_with_plain_and_serialization_and_validation_alias(firstName="Mickey")
         assert repr(model).find("first_name") > -1
@@ -373,21 +381,11 @@ class TestPlainAndSerializationAndValidationAlias:
         assert repr(model).find("firstName") == -1
         assert list(model.__rich_repr__()) == [("first_name", "Mickey")]
 
-
     @pytest.mark.parametrize(
-        "arg_name, expected",
-        [
-            ("first_name", True),
-            ("f_name_a", False),
-            ("f_name_s", False),
-            ("firstName", False)
-        ]
+        "arg_name, expected", [("first_name", True), ("f_name_a", False), ("f_name_s", False), ("firstName", False)]
     )
     def test_should_class_attribute_have_field_name(
-        self,
-        model_with_plain_and_serialization_and_validation_alias,
-        arg_name: str,
-        expected: bool
+        self, model_with_plain_and_serialization_and_validation_alias, arg_name: str, expected: bool
     ):
         model = model_with_plain_and_serialization_and_validation_alias(firstName="Mickey")
         assert hasattr(model, arg_name) is expected
