@@ -1,0 +1,23 @@
+default_language_version:
+  python: python3.10
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+  - repo: local
+    hooks:
+      - id: ruff-lint
+        name: ruff (linter)
+        entry: poetry run ruff check .
+        language: system
+        types: [python]
+      - id: ruff-format
+        name: ruff (formatter)
+        entry: poetry run ruff format .
+        language: system
+        types: [python]
