@@ -36,3 +36,7 @@ ruff-format-check:
   @poetry run ruff format --check .
 
 lint-and-format: ruff-fix ruff-format
+
+test:
+  @echo "🚀 Testing code with pytest"
+  @poetry run pytest --verbose tests
