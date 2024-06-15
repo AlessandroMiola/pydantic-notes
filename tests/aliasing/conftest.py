@@ -1,5 +1,6 @@
 import pytest
-from pydantic import AliasChoices, BaseModel, ConfigDict, Field
+from pydantic import AliasChoices, AliasGenerator, BaseModel, ConfigDict, Field
+from pydantic.alias_generators import to_camel, to_pascal
 
 
 @pytest.fixture
@@ -89,3 +90,54 @@ def model_with_validation_alias_and_pop_by_name_config():
         first_name: str = Field(validation_alias="firstName")
 
     return ModelWithValidationAliasPopByName
+
+
+@pytest.fixture
+def model_with_alias_generator_and_unset_priority():
+    class ModelWithAliasGeneratorAndUnsetPriority(BaseModel):
+        model_config = ConfigDict(
+            alias_generator=AliasGenerator(
+                alias=to_camel,
+                validation_alias=lambda x: x.upper(),
+                serialization_alias=to_pascal,
+            )
+        )
+        first_name_pa: str = Field(alias="f_name_pa")
+        first_name_va: str = Field(validation_alias="f_name_va")
+        first_name_sa: str = Field(serialization_alias="f_name_sa")
+
+    return ModelWithAliasGeneratorAndUnsetPriority
+
+
+@pytest.fixture
+def model_with_alias_generator_and_priority_1():
+    class ModelWithAliasGeneratorAndAliasPriority1(BaseModel):
+        model_config = ConfigDict(
+            alias_generator=AliasGenerator(
+                alias=to_camel,
+                validation_alias=lambda x: x.upper(),
+                serialization_alias=to_pascal,
+            )
+        )
+        first_name_pa: str = Field(alias="f_name_pa", alias_priority=1)
+        first_name_va: str = Field(validation_alias="f_name_va", alias_priority=1)
+        first_name_sa: str = Field(serialization_alias="f_name_sa", alias_priority=1)
+
+    return ModelWithAliasGeneratorAndAliasPriority1
+
+
+@pytest.fixture
+def model_with_alias_generator_and_priority_2():
+    class ModelWithAliasGeneratorAndAliasPriority2(BaseModel):
+        model_config = ConfigDict(
+            alias_generator=AliasGenerator(
+                alias=to_camel,
+                validation_alias=lambda x: x.upper(),
+                serialization_alias=to_pascal,
+            )
+        )
+        first_name_pa: str = Field(alias="f_name_pa", alias_priority=2)
+        first_name_va: str = Field(validation_alias="f_name_va", alias_priority=2)
+        first_name_sa: str = Field(serialization_alias="f_name_sa", alias_priority=2)
+
+    return ModelWithAliasGeneratorAndAliasPriority2
