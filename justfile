@@ -15,25 +15,25 @@ check-project:
   @echo "🚀 Running the hooks against all files"
   @poetry run pre-commit run --all-files
 
-ruff file:
+ruff:
   @echo "🚀 Linting the project with Ruff"
-  @poetry run ruff check {{file}}
+  @poetry run ruff check .
 
 ruff-show-violations:
   @echo "🚀 Linting the project with Ruff and show violations"
-  @poetry run ruff check --output-format="grouped" tests
+  @poetry run ruff check --output-format="grouped" .
 
 ruff-fix:
   @echo "🚀 Linting the project with Ruff and autofix violations (where possible)"
-  @poetry run ruff check --fix tests
+  @poetry run ruff check --fix .
 
 ruff-format:
   @echo "🚀 Formatting the code with Ruff"
-  @poetry run ruff format tests
+  @poetry run ruff format .
 
 ruff-format-check:
   @echo "🚀 Listing files Ruff would reformat"
-  @poetry run ruff format --check tests
+  @poetry run ruff format --check .
 
 lint-and-format: ruff-fix ruff-format
 
