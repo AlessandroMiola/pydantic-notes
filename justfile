@@ -17,23 +17,23 @@ check-project:
 
 ruff:
   @echo "🚀 Linting the project with Ruff"
-  @poetry run ruff check .
+  @poetry run ruff check tests
 
 ruff-show-violations:
   @echo "🚀 Linting the project with Ruff and show violations"
-  @poetry run ruff check --output-format="grouped" .
+  @poetry run ruff check --output-format="grouped" tests
 
 ruff-fix:
   @echo "🚀 Linting the project with Ruff and autofix violations (where possible)"
-  @poetry run ruff check --fix .
+  @poetry run ruff check --fix tests
 
 ruff-format:
   @echo "🚀 Formatting the code with Ruff"
-  @poetry run ruff format .
+  @poetry run ruff format tests
 
 ruff-format-check:
   @echo "🚀 Listing files Ruff would reformat"
-  @poetry run ruff format --check .
+  @poetry run ruff format --check tests
 
 lint-and-format: ruff-fix ruff-format
 
