@@ -15,9 +15,9 @@ check-project:
   @echo "🚀 Running the hooks against all files"
   @poetry run pre-commit run --all-files
 
-ruff:
+ruff file:
   @echo "🚀 Linting the project with Ruff"
-  @poetry run ruff check tests
+  @poetry run ruff check {{file}}
 
 ruff-show-violations:
   @echo "🚀 Linting the project with Ruff and show violations"
