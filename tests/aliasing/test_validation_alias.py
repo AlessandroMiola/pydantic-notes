@@ -135,8 +135,103 @@ class TestValidationAlias:
         assert hasattr(model, arg_name) is expected
         assert (arg_name in dict(model)) is expected
 
-    def test_alias_choices(self, model_with_validation_alias_choices):
-        pass
+    @pytest.mark.parametrize(
+        "data, expectation, expected_error",
+        [
+            ({"firstName": "Mickey"}, does_not_raise(), None),
+            ('{"firstName": "Mickey"}', does_not_raise(), None),
+            ({"givenName": "Mickey"}, does_not_raise(), None),
+            ('{"givenName": "Mickey"}', does_not_raise(), None),
+            ({"preferredName": "Mickey"}, does_not_raise(), None),
+            ('{"preferredName": "Mickey"}', does_not_raise(), None),
+            (
+                {"first_name": "Mickey"},
+                pytest.raises(ValidationError),
+                [
+                    {
+                        "type": "missing",
+                        "loc": ("firstName",),
+                        "msg": "Field required",
+                        "input": {"first_name": "Mickey"},
+                    }
+                ],
+            ),
+            (
+                '{"first_name": "Mickey"}',
+                pytest.raises(ValidationError),
+                [
+                    {
+                        "type": "missing",
+                        "loc": ("firstName",),
+                        "msg": "Field required",
+                        "input": {"first_name": "Mickey"},
+                    }
+                ],
+            ),
+            (
+                {"anyOtherName": "Mickey"},
+                pytest.raises(ValidationError),
+                [
+                    {
+                        "type": "missing",
+                        "loc": ("firstName",),
+                        "msg": "Field required",
+                        "input": {"anyOtherName": "Mickey"},
+                    }
+                ],
+            ),
+            (
+                '{"anyOtherName": "Mickey"}',
+                pytest.raises(ValidationError),
+                [
+                    {
+                        "type": "missing",
+                        "loc": ("firstName",),
+                        "msg": "Field required",
+                        "input": {"anyOtherName": "Mickey"},
+                    }
+                ],
+            ),
+        ],
+    )
+    def test_deserialize_by_any_of_alias_choices(
+        self,
+        model_with_validation_alias_choices,
+        data: dict | str,
+        expectation: ContextManager,
+        expected_error: list[dict] | None,
+    ):
+        with expectation as exc_info:
+            if isinstance(data, dict):
+                _ = model_with_validation_alias_choices.model_validate(data)
+            else:
+                _ = model_with_validation_alias_choices.model_validate_json(data)
+        if expected_error is None:
+            assert exc_info is None
+        else:
+            assert exc_info is not None
+            assert exc_info.value.errors(include_url=False) == expected_error
+
+    @pytest.mark.parametrize(
+        "data, field_name, valid_alias",
+        [
+            ({"names": ["Mickey", "Mouse", "Mortimer"]}, "first_name", "Mickey"),
+            ({"names": ["Mickey", "Mouse", "Mortimer"]}, "last_name", "Mouse"),
+            ({"names": ["Mortimer", "Mickey", "Mouse"]}, "first_name", "Mortimer"),
+        ],
+    )
+    def test_deserialize_by_alias_in_alias_path(
+        self,
+        model_with_validation_alias_path,
+        data: dict,
+        field_name: str,
+        valid_alias: str,
+    ):
+        assert model_with_validation_alias_path.model_validate(data).__getattribute__(field_name) == valid_alias
+        assert model_with_validation_alias_path.model_validate(data).first_name != data["names"][1]
+        assert model_with_validation_alias_path.model_validate(data).first_name != data["names"][2]
+        assert model_with_validation_alias_path.model_validate(data).last_name != data["names"][0]
+        assert model_with_validation_alias_path.model_validate(data).last_name != data["names"][2]
 
 
 class TestValidationAliasPopByName:

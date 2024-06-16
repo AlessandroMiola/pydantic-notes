@@ -1,5 +1,5 @@
 import pytest
-from pydantic import AliasChoices, AliasGenerator, BaseModel, ConfigDict, Field
+from pydantic import AliasChoices, AliasGenerator, AliasPath, BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel, to_pascal
 
 
@@ -38,7 +38,10 @@ def model_with_validation_alias_choices():
 @pytest.fixture
 def model_with_validation_alias_path():
     class ModelWithValidationAliasPath(BaseModel):
-        pass
+        first_name: str = Field(validation_alias=AliasPath("names", 0))
+        last_name: str = Field(validation_alias=AliasPath("names", 1))
+
+    return ModelWithValidationAliasPath
 
 
 @pytest.fixture
