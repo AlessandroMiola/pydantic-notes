@@ -2,7 +2,8 @@ from contextlib import AbstractContextManager as ContextManager
 from contextlib import nullcontext as does_not_raise
 
 import pytest
-from pydantic import ValidationError
+from pydantic import AliasGenerator, ValidationError
+from pydantic.alias_generators import to_camel, to_pascal
 
 
 class TestPlainAndSerializationAlias:
@@ -139,6 +140,10 @@ class TestPlainAndSerializationAlias:
         assert hasattr(model, arg_name) is expected
         assert (arg_name in dict(model)) is expected
 
+    def test_alias_priority(self, model_with_plain_and_serialization_alias):
+        model = model_with_plain_and_serialization_alias(firstName="Mickey")
+        assert model.model_fields["first_name"].alias_priority == 2
+
 
 class TestPlainAndValidationAlias:
     @pytest.mark.parametrize(
@@ -272,6 +277,10 @@ class TestPlainAndValidationAlias:
         assert hasattr(model, arg_name) is expected
         assert (arg_name in dict(model)) is expected
 
+    def test_alias_priority(self, model_with_plain_and_validation_alias):
+        model = model_with_plain_and_validation_alias(firstName="Mickey")
+        assert model.model_fields["first_name"].alias_priority == 2
+
 
 class TestPlainAndSerializationAndValidationAlias:
     @pytest.mark.parametrize(
@@ -390,3 +399,266 @@ class TestPlainAndSerializationAndValidationAlias:
         model = model_with_plain_and_serialization_and_validation_alias(firstName="Mickey")
         assert hasattr(model, arg_name) is expected
         assert (arg_name in dict(model)) is expected
+
+    def test_alias_priority(self, model_with_plain_and_serialization_and_validation_alias):
+        model = model_with_plain_and_serialization_and_validation_alias(firstName="Mickey")
+        assert model.model_fields["first_name"].alias_priority == 2
+
+
+class TestAliasGeneratorUnsetAliasPriority:
+    @pytest.mark.parametrize(
+        "field_name, plain_alias, gen_plain_alias, gen_val_alias, gen_ser_alias",
+        [
+            (
+                "first_name_pa",
+                "f_name_pa",
+                AliasGenerator(alias=to_camel("first_name_pa")).alias,
+                AliasGenerator(validation_alias="first_name_pa".upper()).validation_alias,
+                AliasGenerator(serialization_alias=to_pascal("first_name_pa")).serialization_alias,
+            ),
+        ],
+    )
+    def test_should_plain_alias_with_unset_priority_override_generated_aliases(
+        self,
+        model_with_alias_generator_and_unset_priority,
+        field_name: str,
+        plain_alias: str,
+        gen_plain_alias: str,
+        gen_val_alias: str,
+        gen_ser_alias: str,
+    ):
+        assert model_with_alias_generator_and_unset_priority.model_fields[field_name].alias == plain_alias
+        assert model_with_alias_generator_and_unset_priority.model_fields[field_name].validation_alias == plain_alias
+        assert model_with_alias_generator_and_unset_priority.model_fields[field_name].serialization_alias == plain_alias
+
+        assert model_with_alias_generator_and_unset_priority.model_fields[field_name].alias != gen_plain_alias
+        assert model_with_alias_generator_and_unset_priority.model_fields[field_name].validation_alias != gen_val_alias
+        assert (
+            model_with_alias_generator_and_unset_priority.model_fields[field_name].serialization_alias != gen_ser_alias
+        )
+
+    @pytest.mark.parametrize(
+        "field_name, val_alias, gen_plain_alias, gen_val_alias, gen_ser_alias",
+        [
+            (
+                "first_name_va",
+                "f_name_va",
+                AliasGenerator(alias=to_camel("first_name_va")).alias,
+                AliasGenerator(validation_alias="first_name_va".upper()).validation_alias,
+                AliasGenerator(serialization_alias=to_pascal("first_name_va")).serialization_alias,
+            ),
+        ],
+    )
+    def test_should_val_alias_with_unset_priority_override_generated_val_alias(
+        self,
+        model_with_alias_generator_and_unset_priority,
+        field_name: str,
+        val_alias: str,
+        gen_plain_alias: str,
+        gen_val_alias: str,
+        gen_ser_alias: str,
+    ):
+        assert model_with_alias_generator_and_unset_priority.model_fields[field_name].alias == gen_plain_alias
+        assert model_with_alias_generator_and_unset_priority.model_fields[field_name].validation_alias == val_alias
+        assert (
+            model_with_alias_generator_and_unset_priority.model_fields[field_name].serialization_alias == gen_ser_alias
+        )
+
+        assert model_with_alias_generator_and_unset_priority.model_fields[field_name].validation_alias != gen_val_alias
+
+    @pytest.mark.parametrize(
+        "field_name, ser_alias, gen_plain_alias, gen_val_alias, gen_ser_alias",
+        [
+            (
+                "first_name_sa",
+                "f_name_sa",
+                AliasGenerator(alias=to_camel("first_name_sa")).alias,
+                AliasGenerator(validation_alias="first_name_sa".upper()).validation_alias,
+                AliasGenerator(serialization_alias=to_pascal("first_name_sa")).serialization_alias,
+            ),
+        ],
+    )
+    def test_should_ser_alias_with_unset_priority_override_generated_ser_alias(
+        self,
+        model_with_alias_generator_and_unset_priority,
+        field_name: str,
+        ser_alias: str,
+        gen_plain_alias: str,
+        gen_val_alias: str,
+        gen_ser_alias: str,
+    ):
+        assert model_with_alias_generator_and_unset_priority.model_fields[field_name].alias == gen_plain_alias
+        assert model_with_alias_generator_and_unset_priority.model_fields[field_name].validation_alias == gen_val_alias
+        assert model_with_alias_generator_and_unset_priority.model_fields[field_name].serialization_alias == ser_alias
+
+        assert (
+            model_with_alias_generator_and_unset_priority.model_fields[field_name].serialization_alias != gen_ser_alias
+        )
+
+
+class TestAliasGeneratorAliasPriority1:
+    @pytest.mark.parametrize(
+        "field_name, plain_alias, gen_plain_alias, gen_val_alias, gen_ser_alias",
+        [
+            (
+                "first_name_pa",
+                "f_name_pa",
+                AliasGenerator(alias=to_camel("first_name_pa")).alias,
+                AliasGenerator(validation_alias="first_name_pa".upper()).validation_alias,
+                AliasGenerator(serialization_alias=to_pascal("first_name_pa")).serialization_alias,
+            ),
+        ],
+    )
+    def test_should_plain_alias_with_low_priority_be_overriden_by_generated_plain_alias(
+        self,
+        model_with_alias_generator_and_priority_1,
+        field_name: str,
+        plain_alias: str,
+        gen_plain_alias: str,
+        gen_val_alias: str,
+        gen_ser_alias: str,
+    ):
+        assert model_with_alias_generator_and_priority_1.model_fields[field_name].alias == gen_plain_alias
+        assert model_with_alias_generator_and_priority_1.model_fields[field_name].validation_alias == gen_val_alias
+        assert model_with_alias_generator_and_priority_1.model_fields[field_name].serialization_alias == gen_ser_alias
+
+        assert model_with_alias_generator_and_priority_1.model_fields[field_name].alias != plain_alias
+
+    @pytest.mark.parametrize(
+        "field_name, val_alias, gen_plain_alias, gen_val_alias, gen_ser_alias",
+        [
+            (
+                "first_name_va",
+                "f_name_va",
+                AliasGenerator(alias=to_camel("first_name_va")).alias,
+                AliasGenerator(validation_alias="first_name_va".upper()).validation_alias,
+                AliasGenerator(serialization_alias=to_pascal("first_name_va")).serialization_alias,
+            ),
+        ],
+    )
+    def test_should_val_alias_with_low_priority_be_overriden_by_generated_val_alias(
+        self,
+        model_with_alias_generator_and_priority_1,
+        field_name: str,
+        val_alias: str,
+        gen_plain_alias: str,
+        gen_val_alias: str,
+        gen_ser_alias: str,
+    ):
+        assert model_with_alias_generator_and_priority_1.model_fields[field_name].alias == gen_plain_alias
+        assert model_with_alias_generator_and_priority_1.model_fields[field_name].validation_alias == gen_val_alias
+        assert model_with_alias_generator_and_priority_1.model_fields[field_name].serialization_alias == gen_ser_alias
+
+        assert model_with_alias_generator_and_priority_1.model_fields[field_name].validation_alias != val_alias
+
+    @pytest.mark.parametrize(
+        "field_name, ser_alias, gen_plain_alias, gen_val_alias, gen_ser_alias",
+        [
+            (
+                "first_name_sa",
+                "f_name_sa",
+                AliasGenerator(alias=to_camel("first_name_sa")).alias,
+                AliasGenerator(validation_alias="first_name_sa".upper()).validation_alias,
+                AliasGenerator(serialization_alias=to_pascal("first_name_sa")).serialization_alias,
+            ),
+        ],
+    )
+    def test_should_ser_alias_with_low_priority_be_overridden_by_generated_ser_alias(
+        self,
+        model_with_alias_generator_and_priority_1,
+        field_name: str,
+        ser_alias: str,
+        gen_plain_alias: str,
+        gen_val_alias: str,
+        gen_ser_alias: str,
+    ):
+        assert model_with_alias_generator_and_priority_1.model_fields[field_name].alias == gen_plain_alias
+        assert model_with_alias_generator_and_priority_1.model_fields[field_name].validation_alias == gen_val_alias
+        assert model_with_alias_generator_and_priority_1.model_fields[field_name].serialization_alias == gen_ser_alias
+
+        assert model_with_alias_generator_and_priority_1.model_fields[field_name].serialization_alias != ser_alias
+
+
+class TestAliasGeneratorAliasPriority2:
+    @pytest.mark.parametrize(
+        "field_name, plain_alias, gen_plain_alias, gen_val_alias, gen_ser_alias",
+        [
+            (
+                "first_name_pa",
+                "f_name_pa",
+                AliasGenerator(alias=to_camel("first_name_pa")).alias,
+                AliasGenerator(validation_alias="first_name_pa".upper()).validation_alias,
+                AliasGenerator(serialization_alias=to_pascal("first_name_pa")).serialization_alias,
+            ),
+        ],
+    )
+    def test_should_plain_alias_with_high_priority_override_generated_aliases(
+        self,
+        model_with_alias_generator_and_priority_2,
+        field_name: str,
+        plain_alias: str,
+        gen_plain_alias: str,
+        gen_val_alias: str,
+        gen_ser_alias: str,
+    ):
+        assert model_with_alias_generator_and_priority_2.model_fields[field_name].alias == plain_alias
+        assert model_with_alias_generator_and_priority_2.model_fields[field_name].validation_alias == plain_alias
+        assert model_with_alias_generator_and_priority_2.model_fields[field_name].serialization_alias == plain_alias
+
+        assert model_with_alias_generator_and_priority_2.model_fields[field_name].alias != gen_plain_alias
+        assert model_with_alias_generator_and_priority_2.model_fields[field_name].validation_alias != gen_val_alias
+        assert model_with_alias_generator_and_priority_2.model_fields[field_name].serialization_alias != gen_ser_alias
+
+    @pytest.mark.parametrize(
+        "field_name, val_alias, gen_plain_alias, gen_val_alias, gen_ser_alias",
+        [
+            (
+                "first_name_va",
+                "f_name_va",
+                AliasGenerator(alias=to_camel("first_name_va")).alias,
+                AliasGenerator(validation_alias="first_name_va".upper()).validation_alias,
+                AliasGenerator(serialization_alias=to_pascal("first_name_va")).serialization_alias,
+            ),
+        ],
+    )
+    def test_should_val_alias_with_high_priority_override_generated_val_alias(
+        self,
+        model_with_alias_generator_and_priority_2,
+        field_name: str,
+        val_alias: str,
+        gen_plain_alias: str,
+        gen_val_alias: str,
+        gen_ser_alias: str,
+    ):
+        assert model_with_alias_generator_and_priority_2.model_fields[field_name].alias == gen_plain_alias
+        assert model_with_alias_generator_and_priority_2.model_fields[field_name].validation_alias == val_alias
+        assert model_with_alias_generator_and_priority_2.model_fields[field_name].serialization_alias == gen_ser_alias
+
+        assert model_with_alias_generator_and_priority_2.model_fields[field_name].validation_alias != gen_val_alias
+
+    @pytest.mark.parametrize(
+        "field_name, ser_alias, gen_plain_alias, gen_val_alias, gen_ser_alias",
+        [
+            (
+                "first_name_sa",
+                "f_name_sa",
+                AliasGenerator(alias=to_camel("first_name_sa")).alias,
+                AliasGenerator(validation_alias="first_name_sa".upper()).validation_alias,
+                AliasGenerator(serialization_alias=to_pascal("first_name_sa")).serialization_alias,
+            ),
+        ],
+    )
+    def test_should_ser_alias_with_high_priority_override_generated_ser_alias(
+        self,
+        model_with_alias_generator_and_priority_2,
+        field_name: str,
+        ser_alias: str,
+        gen_plain_alias: str,
+        gen_val_alias: str,
+        gen_ser_alias: str,
+    ):
+        assert model_with_alias_generator_and_priority_2.model_fields[field_name].alias == gen_plain_alias
+        assert model_with_alias_generator_and_priority_2.model_fields[field_name].validation_alias == gen_val_alias
+        assert model_with_alias_generator_and_priority_2.model_fields[field_name].serialization_alias == ser_alias
+
+        assert model_with_alias_generator_and_priority_2.model_fields[field_name].serialization_alias != gen_ser_alias
