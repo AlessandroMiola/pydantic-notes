@@ -1,22 +1,23 @@
-[tool.poetry]
+[project]
 name = "pydantic-notes"
 version = "0.1.0"
 description = "Assorted notes on Pydantic v2."
-authors = ["AlessandroMiola <alessandro1.miola@gmail.com>"]
 readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "pydantic>=2.7.2"
+]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-pydantic = "^2.7.2"
-
-[tool.poetry.group.dev.dependencies]
-ruff = "^0.4.6"
-pytest = "^8.2.1"
-pre-commit = "^3.7.1"
+[tool.uv]
+dev-dependencies = [
+  "ruff>=0.4.6",
+  "pytest>=8.2.1",
+  "pre-commit>=3.7.1"
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
@@ -50,7 +51,7 @@ exclude = [
 ]
 line-length = 120
 indent-width = 4
-target-version = "py310"
+target-version = "py312"
 output-format = "grouped"
 show-fixes = true
 

@@ -1,5 +1,8 @@
 /.pytest_cache
 /.ruff_cache
+/.uv-cache
 *.pyc
 __pycache__
 /.vscode
+/.venv
+/tmp
